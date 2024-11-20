@@ -1,0 +1,4 @@
+[
+   {"name" : "monitor_1", "on_connect" : "on_connect_A", "on_disconnect" : "on_disconnect_A"},
+   {"name" : "monitor_2", "on_connect" : "on_connect_B", "on_disconnect" : "on_disconnect_B"}
+]
