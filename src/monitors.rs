@@ -28,13 +28,14 @@ impl MonitorListener {
             MonitorEvent::Connected => {
                 for monitor in self.monitors.iter() {
                     if monitor.name == name {
+                        println!("monitor {} connected", name);
                         self.update_monitor_config(&monitor.on_connect);
                         self.monitor_count += 1;
                     }
                 }
             }
             MonitorEvent::Disconnected => {
-                if self.monitor_count > 1 {
+                if self.monitor_count >= 1 {
                     self.monitor_count -= 1;
                 }
                 if self.monitor_count == 0 {
@@ -47,7 +48,7 @@ impl MonitorListener {
     fn update_monitor_config(&self, config: &str) {
         let updated_content = format!("{}/{}", MonitorListener::BASE_CFG_STR, config);
         match fs::write(MonitorListener::FILE_PATH, updated_content) {
-            Ok(()) => println!("File {} updated", MonitorListener::FILE_PATH),
+            Ok(()) => println!("Monitor cfg {} applied", config),
             Err(e) => println!(
                 "Error {} writting to file {}",
                 e,

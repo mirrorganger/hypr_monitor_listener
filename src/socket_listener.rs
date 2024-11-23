@@ -26,7 +26,9 @@ pub fn read_socket(
             let info: Vec<&str> = parts[1].split(",").collect();
             listener.monitor_event(info[2], monitors::MonitorEvent::Connected);
         } else if parts[0] == "monitorremoved" {
-            listener.monitor_event(parts[1], monitors::MonitorEvent::Disconnected);
+            if parts[1] != "FALLBACK" && parts[1] != "eDP-1" {
+                listener.monitor_event(parts[0], monitors::MonitorEvent::Disconnected);
+            }
         }
     }
 }
