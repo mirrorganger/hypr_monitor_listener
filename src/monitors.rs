@@ -1,3 +1,4 @@
+use log;
 use serde::{Deserialize, Serialize};
 use std::fs;
 
@@ -9,9 +10,10 @@ pub struct MonitorConfig {
 }
 
 #[allow(dead_code)]
+#[derive(Debug, PartialEq)]
 pub enum MonitorEvent {
-    Connected,
-    Disconnected,
+    Connected(String),
+    Disconnected(String),
 }
 
 pub struct MonitorListener {
@@ -23,18 +25,19 @@ impl MonitorListener {
     const FILE_PATH: &str = "/home/cesar/.config/hypr/conf/monitor.conf";
     const BASE_CFG_STR: &str = "source = ~/.config/hypr/conf/monitors";
     const DEFAULT_CFG: &str = "default.conf";
-    pub fn monitor_event(&mut self, name: &str, event: MonitorEvent) {
+    pub fn monitor_event(&mut self, event: MonitorEvent) {
         match event {
-            MonitorEvent::Connected => {
+            MonitorEvent::Connected(name) => {
                 for monitor in self.monitors.iter() {
                     if monitor.name == name {
-                        println!("monitor {} connected", name);
+                        log::info!("monitor {} connected", name);
                         self.update_monitor_config(&monitor.on_connect);
                         self.monitor_count += 1;
                     }
                 }
             }
-            MonitorEvent::Disconnected => {
+            MonitorEvent::Disconnected(name) => {
+                log::info!("monitor {} disconnected", name);
                 if self.monitor_count >= 1 {
                     self.monitor_count -= 1;
                 }
