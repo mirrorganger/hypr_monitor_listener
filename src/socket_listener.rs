@@ -10,7 +10,7 @@ const MONITOR_REMOVED_STR: &str = "monitorremoved";
 
 pub fn read_socket(
     socket_addr: String,
-    listener: &mut monitors::MonitorListener,
+    listener: &mut dyn monitors::EventMoniterListener,
 ) -> std::io::Result<()> {
     let stream = match UnixStream::connect(socket_addr) {
         Ok(stream) => stream,
@@ -40,7 +40,14 @@ fn parse_hypr_stream(line: &str) -> Option<MonitorEvent> {
             let info: Vec<&str> = parts[1].split(",").collect();
             Some(MonitorEvent::Connected(info[2].to_string()))
         }
-        MONITOR_REMOVED_STR => Some(MonitorEvent::Disconnected(parts[1].to_string())),
+        MONITOR_REMOVED_STR => {
+            if parts[1] != "FALLBACK" && parts[1] != "eDP-1" 
+            {
+                Some(MonitorEvent::Disconnected(parts[1].to_string()))
+            }else{
+                None
+            }
+        },
         _ => None,
     }
 }

@@ -2,6 +2,9 @@ use log;
 use serde::{Deserialize, Serialize};
 use std::fs;
 
+const BASE_CFG_STR: &str = "source = ~/.config/hypr/conf/monitors";
+const DEFAULT_CFG: &str = "default.conf";
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MonitorConfig {
     pub name: String,
@@ -16,22 +19,46 @@ pub enum MonitorEvent {
     Disconnected(String),
 }
 
-pub struct MonitorListener {
-    pub monitors: Vec<MonitorConfig>,
-    pub monitor_count: u8,
+pub struct MonitorCfgWriter {
+    pub file_name: String,
 }
 
-impl MonitorListener {
-    const FILE_PATH: &str = "/home/cesar/.config/hypr/conf/monitor.conf";
-    const BASE_CFG_STR: &str = "source = ~/.config/hypr/conf/monitors";
-    const DEFAULT_CFG: &str = "default.conf";
-    pub fn monitor_event(&mut self, event: MonitorEvent) {
+pub trait ConfigWriter {
+    fn write(&self, config: &str);
+}
+
+impl ConfigWriter for MonitorCfgWriter {
+    fn write(&self, config: &str) {
+        let updated_content = format!("{}/{}", BASE_CFG_STR, config);
+        match fs::write(&self.file_name, updated_content){
+            Ok(()) => println!("Monitor cfg {} applied", config),
+            Err(e) => println!(
+                "Error {} writting to file {}",
+                e,
+                self.file_name
+            ),
+        }
+    }
+}
+
+pub struct MonitorListener<W: ConfigWriter> {
+    pub monitors: Vec<MonitorConfig>,
+    pub monitor_count: u8,
+    pub writer: W,
+}
+
+pub trait EventMoniterListener {
+    fn monitor_event(&mut self, event: MonitorEvent);
+}
+
+impl<W: ConfigWriter> EventMoniterListener for MonitorListener<W> {
+    fn monitor_event(&mut self, event: MonitorEvent) {
         match event {
             MonitorEvent::Connected(name) => {
                 for monitor in self.monitors.iter() {
                     if monitor.name == name {
                         log::info!("monitor {} connected", name);
-                        self.update_monitor_config(&monitor.on_connect);
+                        self.writer.write(&monitor.on_connect);
                         self.monitor_count += 1;
                     }
                 }
@@ -42,21 +69,9 @@ impl MonitorListener {
                     self.monitor_count -= 1;
                 }
                 if self.monitor_count == 0 {
-                    self.update_monitor_config(MonitorListener::DEFAULT_CFG);
+                    self.writer.write(DEFAULT_CFG);
                 }
             }
-        }
-    }
-
-    fn update_monitor_config(&self, config: &str) {
-        let updated_content = format!("{}/{}", MonitorListener::BASE_CFG_STR, config);
-        match fs::write(MonitorListener::FILE_PATH, updated_content) {
-            Ok(()) => println!("Monitor cfg {} applied", config),
-            Err(e) => println!(
-                "Error {} writting to file {}",
-                e,
-                MonitorListener::FILE_PATH
-            ),
         }
     }
 }
