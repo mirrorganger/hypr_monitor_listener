@@ -12,13 +12,13 @@ fn main() {
         let json_path = Path::new(&home_dir).join(".config/hypr-monitor-listener/monitors.json");
         let json_str = fs::read_to_string(json_path).expect("Couldn't load the file");
 
-        let config_writer = monitors::MonitorCfgWriter {
+        let mut config_writer = monitors::MonitorCfgWriter {
             file_name: FILE_PATH.to_string(),
         };
         let mut listener = monitors::MonitorListener {
             monitors: serde_json::from_str(&json_str).unwrap_or_default(),
             monitor_count: 0,
-            writer: config_writer,
+            writer: &mut config_writer,
         };
 
         match socket_listener::read_socket(

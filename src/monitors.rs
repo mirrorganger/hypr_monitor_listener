@@ -1,4 +1,3 @@
-use log;
 use serde::{Deserialize, Serialize};
 use std::fs;
 
@@ -24,34 +23,30 @@ pub struct MonitorCfgWriter {
 }
 
 pub trait ConfigWriter {
-    fn write(&self, config: &str);
+    fn write(&mut self, config: &str);
 }
 
 impl ConfigWriter for MonitorCfgWriter {
-    fn write(&self, config: &str) {
+    fn write(&mut self, config: &str) {
         let updated_content = format!("{}/{}", BASE_CFG_STR, config);
-        match fs::write(&self.file_name, updated_content){
+        match fs::write(&self.file_name, updated_content) {
             Ok(()) => println!("Monitor cfg {} applied", config),
-            Err(e) => println!(
-                "Error {} writting to file {}",
-                e,
-                self.file_name
-            ),
+            Err(e) => println!("Error {} writting to file {}", e, self.file_name),
         }
     }
 }
 
-pub struct MonitorListener<W: ConfigWriter> {
+pub struct MonitorListener<'a, W: ConfigWriter + 'a> {
     pub monitors: Vec<MonitorConfig>,
     pub monitor_count: u8,
-    pub writer: W,
+    pub writer: &'a mut W,
 }
 
 pub trait EventMoniterListener {
     fn monitor_event(&mut self, event: MonitorEvent);
 }
 
-impl<W: ConfigWriter> EventMoniterListener for MonitorListener<W> {
+impl<'a, W: ConfigWriter + 'a> EventMoniterListener for MonitorListener<'a, W> {
     fn monitor_event(&mut self, event: MonitorEvent) {
         match event {
             MonitorEvent::Connected(name) => {
@@ -73,5 +68,49 @@ impl<W: ConfigWriter> EventMoniterListener for MonitorListener<W> {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct Mock {
+        configs: Vec<String>,
+    }
+    impl ConfigWriter for Mock {
+        fn write(&mut self, config: &str) {
+            self.configs.push(config.to_string());
+        }
+    }
+
+    #[test]
+    fn test_monitor_cfg_sent() {
+        let mut mock_writer = Mock {
+            configs: Vec::new(),
+        };
+
+        let mut monitor_event_listener = MonitorListener {
+            monitors: vec![
+                MonitorConfig {
+                    name: "monitor1".to_string(),
+                    on_connect: "monitor1.conf".to_string(),
+                    on_disconnect: "default.conf".to_string(),
+                },
+                MonitorConfig {
+                    name: "monitor2".to_string(),
+                    on_connect: "monitor2.conf".to_string(),
+                    on_disconnect: "default.conf".to_string(),
+                },
+            ],
+            monitor_count: 0,
+            writer: &mut mock_writer,
+        };
+        monitor_event_listener.monitor_event(MonitorEvent::Connected("monitor1".to_string()));
+        monitor_event_listener.monitor_event(MonitorEvent::Disconnected("".to_string()));
+
+        assert_eq!(mock_writer.configs.len(), 2);
+        assert_eq!(mock_writer.configs[0], "monitor1.conf");
+        assert_eq!(mock_writer.configs[1], DEFAULT_CFG);
     }
 }
