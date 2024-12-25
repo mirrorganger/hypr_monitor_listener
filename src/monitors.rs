@@ -36,7 +36,10 @@ impl ConfigWriter for MonitorCfgWriter {
     }
 }
 
-pub struct MonitorListener<'a, W: ConfigWriter + 'a> {
+pub struct MonitorListener<'a, W>
+where
+    W: ConfigWriter + 'a,
+{
     pub monitors: Vec<MonitorConfig>,
     pub monitor_count: u8,
     pub writer: &'a mut W,
@@ -46,7 +49,23 @@ pub trait EventMoniterListener {
     fn monitor_event(&mut self, event: MonitorEvent);
 }
 
-impl<'a, W: ConfigWriter + 'a> EventMoniterListener for MonitorListener<'a, W> {
+impl<'a, W> MonitorListener<'a, W>
+where
+    W: ConfigWriter + 'a,
+{
+    pub fn print_config(&self) {
+        for monitor in self.monitors.iter() {
+            log::debug!("Monitor: {}", monitor.name);
+            log::debug!("On connect: {}", monitor.on_connect);
+            log::debug!("On disconnect: {}", monitor.on_disconnect);
+        }
+    }
+}
+
+impl<'a, W> EventMoniterListener for MonitorListener<'a, W>
+where
+    W: ConfigWriter + 'a,
+{
     fn monitor_event(&mut self, event: MonitorEvent) {
         match event {
             MonitorEvent::Connected(name) => {
@@ -59,7 +78,7 @@ impl<'a, W: ConfigWriter + 'a> EventMoniterListener for MonitorListener<'a, W> {
                 }
             }
             MonitorEvent::Disconnected(name) => {
-                log::info!("monitor {} disconnected", name);
+                log::debug!("monitor {} disconnected", name);
                 if self.monitor_count >= 1 {
                     self.monitor_count -= 1;
                 }
