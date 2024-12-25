@@ -30,8 +30,8 @@ impl ConfigWriter for MonitorCfgWriter {
     fn write(&mut self, config: &str) {
         let updated_content = format!("{}/{}", BASE_CFG_STR, config);
         match fs::write(&self.file_name, updated_content) {
-            Ok(()) => println!("Monitor cfg {} applied", config),
-            Err(e) => println!("Error {} writting to file {}", e, self.file_name),
+            Ok(()) => log::debug!("Monitor cfg {} applied", config),
+            Err(e) => log::error!("Error {} writting to file {}", e, self.file_name),
         }
     }
 }
