@@ -41,13 +41,12 @@ fn parse_hypr_stream(line: &str) -> Option<MonitorEvent> {
             Some(MonitorEvent::Connected(info[2].to_string()))
         }
         MONITOR_REMOVED_STR => {
-            if parts[1] != "FALLBACK" && parts[1] != "eDP-1" 
-            {
+            if parts[1] != "FALLBACK" && parts[1] != "eDP-1" {
                 Some(MonitorEvent::Disconnected(parts[1].to_string()))
-            }else{
+            } else {
                 None
             }
-        },
+        }
         _ => None,
     }
 }
@@ -79,6 +78,7 @@ mod test {
     use super::parse_hypr_stream;
     use crate::monitors::MonitorEvent;
     use crate::socket_listener::MONITOR_ADDED_STR;
+    use crate::socket_listener::MONITOR_REMOVED_STR;
     #[test]
     fn test_parser_monitor_connect() {
         let monitor_name: &str = "monitor_1";
@@ -87,6 +87,10 @@ mod test {
         assert_eq!(
             parse_hypr_stream(&input_str),
             Some(MonitorEvent::Connected(monitor_name.to_string()))
+        );
+        assert_eq!(
+            parse_hypr_stream(&format!("{}>>xxx", MONITOR_REMOVED_STR)),
+            Some(MonitorEvent::Disconnected("xxx".to_string()))
         );
     }
 }
