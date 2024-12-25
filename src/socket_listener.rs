@@ -10,7 +10,7 @@ const MONITOR_REMOVED_STR: &str = "monitorremoved";
 
 pub fn read_socket(
     socket_addr: String,
-    listener: &mut monitors::MonitorListener,
+    listener: &mut dyn monitors::EventMoniterListener,
 ) -> std::io::Result<()> {
     let stream = match UnixStream::connect(socket_addr) {
         Ok(stream) => stream,
@@ -40,7 +40,13 @@ fn parse_hypr_stream(line: &str) -> Option<MonitorEvent> {
             let info: Vec<&str> = parts[1].split(",").collect();
             Some(MonitorEvent::Connected(info[2].to_string()))
         }
-        MONITOR_REMOVED_STR => Some(MonitorEvent::Disconnected(parts[1].to_string())),
+        MONITOR_REMOVED_STR => {
+            if parts[1] != "FALLBACK" && parts[1] != "eDP-1" {
+                Some(MonitorEvent::Disconnected(parts[1].to_string()))
+            } else {
+                None
+            }
+        }
         _ => None,
     }
 }
@@ -72,6 +78,7 @@ mod test {
     use super::parse_hypr_stream;
     use crate::monitors::MonitorEvent;
     use crate::socket_listener::MONITOR_ADDED_STR;
+    use crate::socket_listener::MONITOR_REMOVED_STR;
     #[test]
     fn test_parser_monitor_connect() {
         let monitor_name: &str = "monitor_1";
@@ -80,6 +87,10 @@ mod test {
         assert_eq!(
             parse_hypr_stream(&input_str),
             Some(MonitorEvent::Connected(monitor_name.to_string()))
+        );
+        assert_eq!(
+            parse_hypr_stream(&format!("{}>>xxx", MONITOR_REMOVED_STR)),
+            Some(MonitorEvent::Disconnected("xxx".to_string()))
         );
     }
 }
