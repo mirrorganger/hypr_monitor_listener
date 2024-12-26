@@ -4,7 +4,7 @@ This is personal project to learn how to use Rust for a simple task.
 
 The idea of the project is to change the monitor configuration based on configuration file.
 
-The system must be use hyperland and the dotfiles from
+The system must use hyperland as window manager, and the dotfiles from
 
 [My Linux For Work - dotfiles](https://github.com/mylinuxforwork/dotfiles)
 
