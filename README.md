@@ -2,13 +2,15 @@
 
 This is personal project to learn how to use Rust for a simple task.
 
-The idea of the project is to change the monitor configuration based on a system running hyperland with and using the dotfiles from
+The idea of the project is to change the monitor configuration based on configuration file.
+
+The system must be use hyperland and the dotfiles from
 
 [My Linux For Work - dotfiles](https://github.com/mylinuxforwork/dotfiles)
 
-The binary listens to the hyprland socket waiting for monitor connection/disconnection events, and adjust the monitor configuration accordingly.
+The binary listens to the hyprland socket and waits for monitor connection/disconnection events, adjusting the monitor configuration.
 
-The desired behavior is configured with a json file. 
+The desired behavior is specified with a json file. 
 
 #### Configuration file example
 
@@ -24,4 +26,4 @@ The configuration file **monitors.json** should be be placed under **$/.config/h
 
 #### On connect configurations
 
-The on-connect configurations files should be located under **$/.config/hypr/conf/monitors/**
+The on-connect configurations files must exists under **$/.config/hypr/conf/monitors/**
