@@ -45,8 +45,17 @@ where
     pub writer: &'a mut W,
 }
 
+pub fn parse_hypr_monitor_output(output: &str) -> Vec<String> {
+    output
+        .lines()
+        .filter(|line| line.trim().contains("description"))
+        .map(|line| line.split_once(":").unwrap().1.trim().to_string())
+        .collect()
+}
+
 pub trait EventMoniterListener {
     fn monitor_event(&mut self, event: MonitorEvent);
+    fn init(&mut self, monitors: &Vec<String>);
 }
 
 impl<'a, W> MonitorListener<'a, W>
@@ -84,6 +93,17 @@ where
                 }
                 if self.monitor_count == 0 {
                     self.writer.write(DEFAULT_CFG);
+                }
+            }
+        }
+    }
+
+    fn init(&mut self, monitors: &Vec<String>) {
+        for monitor in monitors {
+            for m in self.monitors.iter() {
+                if m.name == *monitor {
+                    self.writer.write(&m.on_connect);
+                    return;
                 }
             }
         }

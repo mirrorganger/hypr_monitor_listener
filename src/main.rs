@@ -1,10 +1,10 @@
 use std::env;
 use std::fs;
 use std::path::Path;
-
+use std::process::Command;
 mod monitors;
 mod socket_listener;
-
+use monitors::EventMoniterListener;
 #[cfg(debug_assertions)]
 const FILE_PATH: &str = "test.conf";
 
@@ -26,6 +26,18 @@ fn main() {
             writer: &mut config_writer,
         };
         listener.print_config();
+
+        let output = Command::new("hyprctl")
+            .args(["monitors", "all"])
+            .output()
+            .expect("failed to get monitor list");
+
+        let output = String::from_utf8_lossy(&output.stdout);
+        let initial_monitors = monitors::parse_hypr_monitor_output(&output);
+        for monitor in &initial_monitors {
+            log::debug!("Monitor: {}", monitor);
+        }
+        listener.init(&initial_monitors);
         match socket_listener::read_socket(
             socket_listener::get_hyper_socket().expect("Could not get socket"),
             &mut listener,
