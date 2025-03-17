@@ -1,4 +1,4 @@
-### Hypr-monitor-listener
+### Hypr monitor listener
 
 Simple binary that changes the monitor configuration automatically in a system running [Hyperland Wayland Compositor](https://github.com/hyprwm/Hyprland).
 
@@ -50,7 +50,7 @@ cargo install --path .
 Once installed, you can autostart the binary by adding
 
 ```bash
-exec-once hypr-monitor-listener &
+exec-once = hypr_monitor_listener &
 ```
 
 to your hyprland config 
