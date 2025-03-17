@@ -1,5 +1,5 @@
 [package]
-name = "hypr-monitor-listener"
+name = "hypr_monitor_listener"
 version = "0.1.0"
 edition = "2021"
 

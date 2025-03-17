@@ -1,4 +1,4 @@
-### Hypr-monitor-listener
+### Hypr monitor listener
 
 Simple binary that changes the monitor configuration automatically in a system running [Hyperland Wayland Compositor](https://github.com/hyprwm/Hyprland).
 
@@ -50,7 +50,7 @@ cargo install --path .
 Once installed, you can autostart the binary by adding
 
 ```bash
-exec-once hypr-monitor-listener &
+exec-once = hypr_monitor_listener &
 ```
 
 to your hyprland config 
@@ -58,4 +58,4 @@ to your hyprland config
 Note: personal project to learn how to use Rust for a simple task
 
 
-[![Build and Test](https://github.com/mirrorganger/hypr-monitor-listener/actions/workflows/rust.yml/badge.svg)](https://github.com/mirrorganger/hypr-monitor-listener/actions/workflows/rust.yml)
+[![Build and Test](https://github.com/mirrorganger/hypr-monitor-listener/actions/workflows/rust.yml/badge.svg)](https://github.com/mirrorganger/hypr_monitor_listener/actions/workflows/rust.yml)
