@@ -58,4 +58,4 @@ to your hyprland config
 Note: personal project to learn how to use Rust for a simple task
 
 
-[![Build and Test](https://github.com/mirrorganger/hypr-monitor-listener/actions/workflows/rust.yml/badge.svg)](https://github.com/mirrorganger/hypr-monitor-listener/actions/workflows/rust.yml)
+[![Build and Test](https://github.com/mirrorganger/hypr-monitor-listener/actions/workflows/rust.yml/badge.svg)](https://github.com/mirrorganger/hypr_monitor_listener/actions/workflows/rust.yml)
