@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
 
-const BASE_CFG_STR: &str = "source = ~/.config/hypr/conf/monitors";
+const BASE_CFG_STR: &str = "source = ~/.config/hypr/monitors";
 const DEFAULT_CFG: &str = "default.conf";
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -99,9 +99,12 @@ where
     }
 
     fn init(&mut self, monitors: &Vec<String>) {
+        println!("Writing default config");
+        self.writer.write(DEFAULT_CFG);
         for monitor in monitors {
             for m in self.monitors.iter() {
                 if m.name == *monitor {
+                    println!("Writing monitor config {}", m.on_connect);    
                     self.writer.write(&m.on_connect);
                     return;
                 }

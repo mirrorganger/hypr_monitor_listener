@@ -9,7 +9,7 @@ use monitors::EventMoniterListener;
 const FILE_PATH: &str = "test.conf";
 
 #[cfg(not(debug_assertions))]
-const FILE_PATH: &str = "/home/cesar/.config/hypr/conf/monitor.conf";
+const FILE_PATH: &str = "/home/cesar/.config/hypr/monitors/monitor.conf";
 
 fn main() {
     env_logger::init();
